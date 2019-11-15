@@ -7,6 +7,11 @@ Note that this script is only tested in Python 3 and might not work in Python 2.
 
 To see usage of the script: `python3 coords2nii.py -h`
 
+## Coordinates type
+
+By default, the script assumes that the coordinates are in XYZ/LAS orientation, following the peak coordinates from NeuroSynth. Set `--type RAS` if
+you are sure your coordinates are in RAS orientation.
+
 ## Example
 
 To run an example, use `python3 coords2nii.py example_coord.csv example_coord.nii.gz` in the command line
