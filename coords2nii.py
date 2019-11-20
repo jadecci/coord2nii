@@ -32,7 +32,7 @@ coords = coords.T
 ### Coordinates conversions
 # convert to RAS coordinates if necessary
 if args.type == "XYZ" or args.type == "LAS":
-    coords[1, :] = - coords[1, :]
+    coords[0, :] = - coords[0, :]
 
 # convert to voxel coordinates
 ras_centered = coords - matlib.repmat(vox2ras[0:3, 3], coords.shape[1], 1).T
@@ -40,16 +40,13 @@ vox_coords = np.linalg.inv(vox2ras[0:3, 0:3]) @ ras_centered
 
 # find nearest voxels for the coordinates
 grid_pts = [range(data.shape[0]), range(data.shape[1]), range(data.shape[2])]
-grid = np.mgrid[grid_pts]
-coords1 = interpn(grid_pts, grid[0], vox_coords.T, 'nearest')
-coords2 = interpn(grid_pts, grid[1], vox_coords.T, 'nearest')
-coords3 = interpn(grid_pts, grid[2], vox_coords.T, 'nearest')
+linear_ind = np.arange(np.prod(data.shape)).reshape(data.shape)
+vox_ind = interpn(grid_pts, linear_ind, vox_coords.T, 'nearest')
 
 ### Nifti generation
 # write a value of 1 to each voxel
-vol = np.zeros((data.shape))
-for i in range(len(coords1)):
-    vol[int(coords1[i]), int(coords2[i]), int(coords3[i])] = 1
+vol = np.zeros(data.shape)
+vol[np.unravel_index(vox_ind.astype(int), data.shape)] = 1
 
 # save volume
 img = nib.Nifti1Image(vol, template.affine, template.header)
