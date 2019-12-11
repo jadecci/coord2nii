@@ -7,14 +7,14 @@ from scipy.interpolate import interpn
 
 ## Usage & arguments parsing
 parser = argparse.ArgumentParser(description="Converts MNI coordinates to a binary nifti volume")
-parser.add_argument("input", type=str, nargs=1,
+parser.add_argument("input", type=str,
                     help=".csv file containing a set of coordinates per row")
-parser.add_argument("output", type=str, nargs=1,
+parser.add_argument("output", type=str,
                     help="output file name (.nii or .nii.gz)")
-parser.add_argument("--template", type=str, nargs=1, dest="template",
+parser.add_argument("--template", type=str, dest="template",
                     default="MNI152_T1_2mm_brain.nii.gz",
                     help="a nifti volume in MNI space, which determines the resolution of the output")
-parser.add_argument("--type", type=str, nargs=1, dest="type",
+parser.add_argument("--type", type=str, dest="type",
                     default="XYZ", help="type of coordinates (XYZ/LAS or RAS)")
 args = parser.parse_args()
 
@@ -24,7 +24,7 @@ vox2ras = template.get_sform()
 data = template.get_data()
 
 ### Collect coordinates
-with open(args.input[0], "r") as f:
+with open(args.input, "r") as f:
     reader = csv.reader(f)
     coords = np.array(list(reader), dtype=float)
 coords = coords.T
@@ -50,4 +50,4 @@ vol[np.unravel_index(vox_ind.astype(int), data.shape)] = 1
 
 # save volume
 img = nib.Nifti1Image(vol, template.affine, template.header)
-nib.save(img, args.output[0])
+nib.save(img, args.output)
